@@ -1,0 +1,90 @@
+Practical Comparisons with R (Part 1)
+========================================================
+
+First we need to set the working directory to the location of our scripts and data files.  You'll need to change the argument to setwd() below.
+
+```{r}
+setwd("/Users/walters/Dropbox/Data/GRC_2013")
+```
+
+Now we can read in the data from Table S2 in http://pubs.acs.org/doi/abs/10.1021/ci300417y.  The command below will read the data and treat the first row as a header.
+
+```{r}
+d = read.csv("li_table_S2.csv",header=TRUE)
+```
+
+Let's take a quick look at the data to make sure we have what we want.
+
+```{r}
+head(d)
+```
+
+First we'll create a boxplot to examine the distribution of RMSD for each charge method.  In order to do this we need to reformat the data so that it is "stacked" in two columns with RMS in one column and charge method in the other column.  Something like this:
+
+  RMSD  METHOD
+1 0.25 AM1.BCC
+2 0.67 AM1.BCC
+3 2.10 AM1.BCC
+4 0.68 AM1.BCC
+5 0.42 AM1.BCC
+6 2.57 AM1.BCC
+
+Fortunately, R has a method called "stack" that will do this for you.  In order to stack the data we first need to create a new dataframe that does not include the first column with the pdb file name.  
+
+```{r}
+dMinusPDB = d[,-1]
+```
+
+Let's take a look this data.
+
+```{r}
+head(dMinusPDB)
+```
+
+Now we can create a new stacked dataframe.
+
+```{r}
+
+
+```
+
+Let's look at the stacked dataframe.
+
+```{r}
+head(dMinusPDBStacked)
+```
+
+Let's give the columns more reasonable names
+
+```{r}
+dMinusPDBStacked = stack(dMinusPDB)
+names(dMinusPDBStacked) = c("RMS","Method")
+head(dMinusPDBStacked)
+```
+
+Now we can make a boxplot
+
+```{r fig.width=10, fig.height=6}
+boxplot(RMS~Method,dMinusPDBStacked,xlab="Method",ylab="RMSD")
+```
+
+We can notch the boxplot to show the standard deviation.
+
+```{r fig.width=10, fig.height=6}
+boxplot(RMS~Method,dMinusPDBStacked,xlab="Method",ylab="RMSD",notch=TRUE)
+```
+
+In order to perform Friedman's test, we need to add a column which repeats the name of each pdb file 9 times (there are 9 different charging methods).  The little bit of magic below takes care of this.  For more information on how this works, take a look at help(sapply).
+
+```{r}
+stackedForFriedman = cbind(dMinusPDBStacked,rep(d$PDB,9))
+names(stackedForFriedman) = c("RMS","METHOD","PDB")
+head(stackedForFriedman)
+```
+
+Now we can run Friedman's test
+
+```{r}
+friedmanResult = friedman.test(stackedForFriedman$RMS,stackedForFriedman$METHOD,stackedForFriedman$PDB)
+friedmanResult
+```
