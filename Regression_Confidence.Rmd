@@ -1,0 +1,78 @@
+Practical Comparisons with R (Part 2 - Comparing Regression)
+========================================================
+Please direct any questions about this code to Pat Walters wpwalters@gmail.com
+
+This code uses the gplots library.  If you don't have gplots installed, you can install it by uncommenting the "install.packages" line below (uncomment by removing the "#" at the beginning of the line).
+
+```{r}
+#install.packages("gplots",dependencies=TRUE)
+suppressPackageStartupMessages(require(gplots))
+```
+
+First we'll set the working directory to the directory with the code.
+
+```{r}
+setwd("~/Dropbox/DATA/GRC_2013")
+```
+
+
+We will start out by defining a couple of functions.  One to calculate a 95% confidence interval and another to plot the confidence interval.  Here's the function to calculate the confidence interval for a dataframe.
+
+```{r}
+# calcuate the 95% confidence interval for a data frame
+# x - the data frame to calculate
+# refCol = column with experimental activity
+# firstCol = first column with predicited activiy
+# returns 
+# l - a vector of lower bounds
+# r - a vector of Pearson r
+# u - a vector of upper bounds
+calc.ci <- function(x,refCol=2,firstCol=4) {
+     l = c()
+     r = c()
+     u = c()
+     j = 1
+     for (i in firstCol:ncol(x)){
+        c = cor.test(x[,refCol],x[,i])
+        r[j] = abs(c$estimate)
+        # swap the lower and upper confidence intervals if r < 0
+        lowerIdx = 1
+        upperIdx = 2
+        if (c$estimate < 0) {
+            lowerIdx = 2
+            upperIdx = 1
+        }
+        l[j] = abs(c$conf.int[lowerIdx])
+        u[j] = abs(c$conf.int[upperIdx])
+        j = j+1
+     }
+     list(l=l,r=r,u=u)
+}
+```
+
+This function plots the confidence intervals as error bars.  This function calls calc.ci which is defined above.
+
+```{r}
+# plot regresssion confidence intervals as error bars around a histogram
+# x - the data frame to calculate
+# refCol = column with experimental activity
+# firstCol = first column with predicited activiy
+plot.regression.ci <- function(x,refCol=2,firstCol=4,plot.title=""){
+     res = calc.ci(x,refCol,firstCol) 
+     cat(sprintf("%-10s %10s %10s %10s\n","","r","lower","upper"))
+     for (i in 1:length(res$r)){
+        cat(sprintf("%-10s %10.3f %10.3f %10.3f\n",names(x)[i+3],res$r[i],res$l[i],res$u[i]))
+     }
+     barplot2(res$r,names.arg=names(x)[4:ncol(x)],plot.ci=TRUE,ci.l=res$l,ci.u=res$u,col="lightblue",cex.names=0.9,ylab="abs(Pearson r)",main=plot.title)
+}
+```
+
+Now we can create a plot of Pearson's r with error bars at the 90% confidence interval.
+
+
+```{r fig.width=7, fig.height=6}
+cat("================================================\n")
+     t2 = read.table("table2_minus_1Q5L_2GTV.txt",header=T)
+     plot.regression.ci(t2,plot.title="Table L2")
+```
+
