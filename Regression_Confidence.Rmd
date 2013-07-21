@@ -1,5 +1,10 @@
 Practical Comparisons with R (Part 2 - Comparing Regression)
 ========================================================
+
+In this tutorial we will demonstrate how to calculate the confidence intervals around a set of correlation coefficients (Pearson's r).  An an example we will use the data published a recent paper that compares a number of methods for calculating predicting binding affinity based on a crystal structure.  
+
+The data is taken from the supplementary material (Table S2) of this paper http://pubs.acs.org/doi/abs/10.1021/ci100036a
+
 Please direct any questions about this code to Pat Walters wpwalters@gmail.com
 
 This code uses the gplots library.  If you don't have gplots installed, you can install it by uncommenting the "install.packages" line below (uncomment by removing the "#" at the beginning of the line).
@@ -67,12 +72,17 @@ plot.regression.ci <- function(x,refCol=2,firstCol=4,plot.title=""){
 }
 ```
 
+First we can read the data
+
+```{r}
+t2 = read.table("table2_minus_1Q5L_2GTV.txt",header=T)
+```
+
+
 Now we can create a plot of Pearson's r with error bars at the 90% confidence interval.
 
-
-```{r fig.width=7, fig.height=6}
-cat("================================================\n")
-     t2 = read.table("table2_minus_1Q5L_2GTV.txt",header=T)
+```{r fig.width=10, fig.height=6}
      plot.regression.ci(t2,plot.title="Table L2")
 ```
 
+As we can see, all of the error bars overlap.
