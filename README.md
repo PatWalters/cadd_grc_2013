@@ -13,7 +13,8 @@ figure - the figures directory produced by R Studio
 li_table_S2.csv - example data file  
 table2_minus_1Q5L_2GTV.txt - example data file  
 confidence_plots.R - generates a figure comparing Pearson's r, the number of datapoints, and the 95% confidence interval  
-WPW_CADD_GRC_2013_Final.pdf - the slides from my GRC talk
-WPW_CADD_GRC_2013_Informal.pdf - the slides from my GRC informal presentation
+WPW_CADD_GRC_2013_Final.pdf - the slides from my GRC talk  
+WPW_CADD_GRC_2013_Informal.pdf - the slides from my GRC informal presentation  
+
 
 
